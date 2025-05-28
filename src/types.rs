@@ -99,27 +99,12 @@ impl Widget for Point {
         // locate buf
         let buf_x = self.x;
         let buf_y = self.y.div_ceil(2);
-        let is_upper_half = self.y % 2 == 1;
         let existed = &buf[(buf_x, buf_y)];
-        match existed.symbol() {
-            "█" => {}
-            "▀" => {
-                if !is_upper_half {
-                    buf[(buf_x, buf_y)].set_symbol("█");
-                }
-            }
-            "▄" => {
-                if is_upper_half {
-                    buf[(buf_x, buf_y)].set_symbol("█");
-                }
-            }
-            _ => {
-                if is_upper_half {
-                    buf[(buf_x, buf_y)].set_symbol("▀");
-                } else {
-                    buf[(buf_x, buf_y)].set_symbol("▄");
-                }
-            }
+        let new_symbol = if self.y % 2 == 1 { "▀" } else { "▄" };
+        let mix_symbol = match (existed.symbol(), new_symbol) {
+            ("█", _) | ("▀", "▄") | ("▄", "▀") => "█",
+            (_, _) => new_symbol,
         };
+        buf[(buf_x, buf_y)].set_symbol(mix_symbol);
     }
 }
